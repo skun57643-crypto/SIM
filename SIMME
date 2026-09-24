@@ -1,0 +1,130 @@
+-- ===================================================
+--                    SIM HUB
+-- ===================================================
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "SIM HUB",
+   LoadingTitle = "SIM HUB Loading...",
+   LoadingSubtitle = "by Assistant",
+   ConfigurationSaving = { Enabled = false },
+   Discord = { Enabled = false },
+   KeySystem = false
+})
+
+local MainTab = Window:CreateTab("Main Features", 4483362458)
+
+-- ตัวแปรควบคุมการทำงาน
+local AutoBuy = false
+local SelectedEnterBoss = "Coyote"
+local AutoEnterBoss = false
+
+local SelectedAttackBoss = "Coyote"
+local AutoAttackBoss = false
+
+local Remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
+
+-- ===================================================
+-- ฟังก์ชันที่ 1: ระบบซื้อของอัตโนมัติ (Buy All Shop)
+-- ===================================================
+MainTab:CreateSection("1. Shop System")
+
+MainTab:CreateToggle({
+   Name = "Auto Buy All Shop (ซื้อของทั้งหมด)",
+   CurrentValue = false,
+   Flag = "AutoBuyToggle",
+   Callback = function(Value)
+      AutoBuy = Value
+      task.spawn(function()
+         while AutoBuy do
+            pcall(function()
+               Remotes:WaitForChild("BuyAllShopRemote"):FireServer()
+            end)
+            task.wait(1)
+         end
+      end)
+   end,
+})
+
+-- ===================================================
+-- ฟังก์ชันที่ 2: ระบบเข้าห้องบอส / ออกห้องบอส (Enter Boss Arena)
+-- ===================================================
+MainTab:CreateSection("2. Boss Arena System")
+
+MainTab:CreateDropdown({
+   Name = "เลือกบอสที่ต้องการเข้าห้อง",
+   Options = {"Coyote", "Toji", "Decayer"},
+   CurrentOption = {"Coyote"},
+   MultipleOptions = false,
+   Flag = "EnterBossDropdown",
+   Callback = function(Option)
+      SelectedEnterBoss = Option[1]
+   end,
+})
+
+MainTab:CreateToggle({
+   Name = "Auto Enter Selected Boss Arena (เข้าห้องบอสที่เลือก)",
+   CurrentValue = false,
+   Flag = "AutoEnterBossToggle",
+   Callback = function(Value)
+      AutoEnterBoss = Value
+      task.spawn(function()
+         while AutoEnterBoss do
+            pcall(function()
+               Remotes:WaitForChild("EnterBossArenaRemote"):FireServer(SelectedEnterBoss)
+            end)
+            task.wait(1)
+         end
+      end)
+   end,
+})
+
+MainTab:CreateButton({
+   Name = "Leave Boss Arena (ออกจากห้องบอส)",
+   Callback = function()
+      pcall(function()
+         Remotes:WaitForChild("LeaveBossArenaRemote"):FireServer()
+      end)
+   end,
+})
+
+-- ===================================================
+-- ฟังก์ชันที่ 3: ระบบโจมตีบอส (World Boss Click Damage)
+-- ===================================================
+MainTab:CreateSection("3. Boss Attack System")
+
+MainTab:CreateDropdown({
+   Name = "เลือกบอสที่ต้องการตี",
+   Options = {"Coyote", "EvilMom", "Toji", "Decayer"},
+   CurrentOption = {"Coyote"},
+   MultipleOptions = false,
+   Flag = "AttackBossDropdown",
+   Callback = function(Option)
+      SelectedAttackBoss = Option[1]
+   end,
+})
+
+MainTab:CreateToggle({
+   Name = "Auto Attack Selected Boss (ตีบอสที่เลือกอัตโนมัติ)",
+   CurrentValue = false,
+   Flag = "AutoAttackBossToggle",
+   Callback = function(Value)
+      AutoAttackBoss = Value
+      task.spawn(function()
+         while AutoAttackBoss do
+            pcall(function()
+               Remotes:WaitForChild("WorldBossClickDamageRemote"):FireServer(SelectedAttackBoss)
+            end)
+            task.wait(0.1) -- ความเร็วในการตี (0.1 วินาที)
+         end
+      end)
+   end,
+})
+
+Rayfield:Notify({
+   Title = "SIM HUB Loaded!",
+   Content = "สคริปต์ SIM HUB พร้อมใช้งานแล้ว",
+   Duration = 5,
+   Image = 4483362458,
+})
